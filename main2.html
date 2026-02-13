@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>admin · results</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        html { font-size: 13px; }
+
+        :root {
+            --bg: #f8f4ff;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-soft: #4b5563;
+            --border: #e5e7eb;
+            --accent: #8b5cf6;
+            --accent-light: #c4b5fd;
+            --accent-dark: #6d28d9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f0719;
+            --card: #1e1430;
+            --text: #ffffff;
+            --text-soft: #a0aec0;
+            --border: #2d2d4a;
+            --accent: #a78bfa;
+            --accent-light: #6d28d9;
+            --accent-dark: #8b5cf6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            transition: background 0.2s;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .logo i {
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .logo span {
+            font-size: 1rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            color: var(--text-soft);
+            font-size: 1rem;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card);
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .user-badge i {
+            color: var(--accent);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .welcome-card {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-card h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .welcome-card h1 span {
+            color: var(--accent);
+        }
+
+        .welcome-card p {
+            color: var(--text-soft);
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card h3 {
+            font-size: 0.7rem;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1.2;
+        }
+
+        .stat-card .label {
+            font-size: 0.7rem;
+            color: var(--text-soft);
+        }
+
+        .section-header {
+            margin-bottom: 1.25rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .section-header h2 i {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        .results-table {
+            background: var(--card);
+            border-radius: 1.2rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 80px 100px;
+            padding: 1rem 1.5rem;
+            background: rgba(139, 92, 246, 0.05);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-soft);
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 80px 100px;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-row .votes {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .progress-small {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .progress-small-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            border-radius: 3px;
+        }
+
+        .winner-badge {
+            background: var(--success);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border-radius: 1.2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5rem;
+            height: 200px;
+            margin-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+
+        .bar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar {
+            width: 100%;
+            background: linear-gradient(to top, var(--accent), var(--accent-dark));
+            border-radius: 6px 6px 0 0;
+            transition: height 0.3s;
+            min-height: 4px;
+        }
+
+        .bar-label {
+            font-size: 0.7rem;
+            color: var(--text-soft);
+            text-align: center;
+        }
+
+        .bar-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .footer-links {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--text-soft);
+        }
+
+        .footer-links a {
+            color: var(--text-soft);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 700px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .table-header { grid-template-columns: 1fr 1fr 60px 80px; }
+            .table-row { grid-template-columns: 1fr 1fr 60px 80px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>cs·portal / admin</span>
+        </div>
+        <div class="user-menu">
+            <div class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-tie"></i>
+                <span id="userEmail">scottishteddyboi@gmail.com</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>good day, <span>professor</span> 👑</h1>
+            <p>after-school lesson voting • real-time results</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- filled by js -->
+        </div>
+
+        <div class="section-header">
+            <h2><i class="fas fa-chart-pie"></i> voting results</h2>
+        </div>
+
+        <div class="chart-card">
+            <div class="chart-bars" id="chartBars"></div>
+        </div>
+
+        <div class="results-table" id="resultsTable">
+            <!-- filled by js -->
+        </div>
+
+        <div class="footer-links">
+            <a href="#">dashboard</a>
+            <a href="#">students</a>
+            <a href="#">settings</a>
+            <a href="#" id="logoutBtn">logout</a>
+        </div>
+    </div>
+
+    <script>
+        // Check admin access
+        const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
+        if (!userData || userData.email !== 'scottishteddyboi@gmail.com') {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('userEmail').textContent = userData.email;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            icon.className = 'fas fa-sun';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.hasAttribute('data-theme')) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fas fa-sun';
+            }
+        });
+
+        // Voting data (same as main1)
+        const timeSlots = [
+            { id: 1, day: 'monday', time: '3:30pm', votes: 8, max: 25 },
+            { id: 2, day: 'monday', time: '4:30pm', votes: 12, max: 25 },
+            { id: 3, day: 'tuesday', time: '3:30pm', votes: 5, max: 25 },
+            { id: 4, day: 'tuesday', time: '4:30pm', votes: 15, max: 25 },
+            { id: 5, day: 'wednesday', time: '3:30pm', votes: 7, max: 25 },
+            { id: 6, day: 'wednesday', time: '4:30pm', votes: 10, max: 25 },
+            { id: 7, day: 'thursday', time: '3:30pm', votes: 4, max: 25 },
+            { id: 8, day: 'thursday', time: '4:30pm', votes: 9, max: 25 }
+        ];
+
+        // Calculate totals
+        const totalVotes = timeSlots.reduce((sum, s) => sum + s.votes, 0);
+        const maxVotes = Math.max(...timeSlots.map(s => s.votes));
+        const winner = timeSlots.find(s => s.votes === maxVotes);
+        const participation = Math.round((totalVotes / (timeSlots.length * 25)) * 100);
+
+        // Stats grid
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><h3>total votes</h3><div class="number">${totalVotes}</div><div class="label">students</div></div>
+            <div class="stat-card"><h3>participation</h3><div class="number">${participation}%</div><div class="label">of class</div></div>
+            <div class="stat-card"><h3>top slot</h3><div class="number">${winner.votes}</div><div class="label">${winner.day} ${winner.time}</div></div>
+            <div class="stat-card"><h3>slots</h3><div class="number">${timeSlots.length}</div><div class="label">available</div></div>
+        `;
+
+        // Results table
+        const sorted = [...timeSlots].sort((a,b) => b.votes - a.votes);
+        let tableHtml = `
+            <div class="table-header">
+                <span>day</span><span>time</span><span>votes</span><span></span>
+            </div>
+        `;
+        
+        sorted.forEach((slot, index) => {
+            const percentage = (slot.votes / maxVotes) * 100;
+            tableHtml += `
+                <div class="table-row">
+                    <span style="text-transform: capitalize;">${slot.day}</span>
+                    <span>${slot.time}</span>
+                    <span class="votes">${slot.votes}</span>
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <div class="progress-small"><div class="progress-small-fill" style="width: ${percentage}%"></div></div>
+                        ${index === 0 ? '<span class="winner-badge">leading</span>' : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('resultsTable').innerHTML = tableHtml;
+
+        // Chart bars
+        const chartBars = document.getElementById('chartBars');
+        const sortedForChart = [...timeSlots].sort((a,b) => b.votes - a.votes).slice(0, 5);
+        const maxVoteForScale = Math.max(...sortedForChart.map(s => s.votes));
+        
+        sortedForChart.forEach(slot => {
+            const height = (slot.votes / maxVoteForScale) * 180;
+            const bar = document.createElement('div');
+            bar.className = 'bar-container';
+            bar.innerHTML = `
+                <div class="bar-value">${slot.votes}</div>
+                <div class="bar" style="height: ${height}px;"></div>
+                <div class="bar-label">${slot.day.slice(0,3)} ${slot.time}</div>
+            `;
+            chartBars.appendChild(bar);
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('userData');
+            localStorage.removeItem('rememberedEmail');
+            sessionStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
