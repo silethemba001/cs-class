@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>student · vote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        html { font-size: 13px; } /* Even smaller for main pages */
+
+        :root {
+            --bg: #f8f4ff;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-soft: #4b5563;
+            --border: #e5e7eb;
+            --accent: #8b5cf6;
+            --accent-light: #c4b5fd;
+            --accent-dark: #6d28d9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f0719;
+            --card: #1e1430;
+            --text: #ffffff;
+            --text-soft: #a0aec0;
+            --border: #2d2d4a;
+            --accent: #a78bfa;
+            --accent-light: #6d28d9;
+            --accent-dark: #8b5cf6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            transition: background 0.2s;
+        }
+
+        /* header */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .logo i {
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .logo span {
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            color: var(--text-soft);
+            font-size: 1rem;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--card);
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+
+        .user-badge i {
+            color: var(--accent);
+        }
+
+        /* main container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* welcome */
+        .welcome-card {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-card h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .welcome-card h1 span {
+            color: var(--accent);
+        }
+
+        .welcome-card p {
+            color: var(--text-soft);
+            font-size: 0.85rem;
+        }
+
+        /* voting section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .section-header h2 i {
+            color: var(--accent);
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .deadline {
+            color: var(--text-soft);
+            font-size: 0.8rem;
+            background: var(--card);
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        /* time slots */
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .slot-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 1.2rem;
+            padding: 1.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .slot-card.selected {
+            border-color: var(--accent);
+            background: linear-gradient(145deg, var(--card), rgba(139, 92, 246, 0.05));
+        }
+
+        .slot-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 0.5rem;
+            right: 0.8rem;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .slot-time {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .slot-day {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .vote-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-soft);
+        }
+
+        .vote-count i {
+            color: var(--success);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 0.8rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+
+        /* selected slot */
+        .selected-slot {
+            background: var(--card);
+            border-radius: 1.2rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .selected-info h3 {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .selected-info p {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .vote-btn {
+            background: linear-gradient(145deg, var(--accent), var(--accent-dark));
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vote-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px var(--accent);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* current votes */
+        .current-votes {
+            background: var(--card);
+            border-radius: 1.2rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .current-votes h3 {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            color: var(--text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .vote-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vote-item:last-child {
+            border-bottom: none;
+        }
+
+        .vote-item .time {
+            font-weight: 600;
+            min-width: 70px;
+            color: var(--accent);
+        }
+
+        .vote-item .count {
+            background: var(--accent-light);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .vote-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .vote-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            border-radius: 3px;
+        }
+
+        /* footer */
+        .footer-links {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--text-soft);
+        }
+
+        .footer-links a {
+            color: var(--text-soft);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem; }
+            .selected-slot { flex-direction: column; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo">
+            <i class="fas fa-code"></i>
+            <span>cs·portal / student</span>
+        </div>
+        <div class="user-menu">
+            <div class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="user-badge">
+                <i class="fas fa-user-graduate"></i>
+                <span id="userEmail">student@cs.edu</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>hey, <span id="studentName">alex</span> 👋</h1>
+            <p>vote for after-school lesson times • your voice matters</p>
+        </div>
+
+        <div class="section-header">
+            <h2><i class="fas fa-clock"></i> available slots</h2>
+            <span class="deadline"><i class="far fa-calendar"></i> voting ends mar 20</span>
+        </div>
+
+        <div class="slots-grid" id="slotsGrid">
+            <!-- dynamically populated by js -->
+        </div>
+
+        <div class="selected-slot" id="selectedSlotSection" style="display: none;">
+            <div class="selected-info">
+                <h3>your selection</h3>
+                <p id="selectedSlotDisplay">monday 4:00pm</p>
+            </div>
+            <button class="vote-btn" id="castVoteBtn">cast vote →</button>
+        </div>
+
+        <div class="current-votes">
+            <h3><i class="fas fa-chart-bar"></i> live results</h3>
+            <div id="resultsList"></div>
+        </div>
+
+        <div class="footer-links">
+            <a href="#">dashboard</a>
+            <a href="#">assignments</a>
+            <a href="#">study groups</a>
+            <a href="#" id="logoutBtn">logout</a>
+        </div>
+    </div>
+
+    <script>
+        // Get user data
+        const userData = JSON.parse(localStorage.getItem('userData') || sessionStorage.getItem('userData'));
+        if (!userData) window.location.href = 'login.html';
+
+        // Show user email
+        document.getElementById('userEmail').textContent = userData.email;
+        const name = userData.email.split('@')[0];
+        document.getElementById('studentName').textContent = name;
+
+        // Theme
+        const themeToggle = document.getElementById('themeToggle');
+        const icon = themeToggle.querySelector('i');
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            icon.className = 'fas fa-sun';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.hasAttribute('data-theme')) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                icon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                icon.className = 'fas fa-sun';
+            }
+        });
+
+        // Voting data
+        const timeSlots = [
+            { id: 1, day: 'monday', time: '3:30pm', votes: 8, max: 25 },
+            { id: 2, day: 'monday', time: '4:30pm', votes: 12, max: 25 },
+            { id: 3, day: 'tuesday', time: '3:30pm', votes: 5, max: 25 },
+            { id: 4, day: 'tuesday', time: '4:30pm', votes: 15, max: 25 },
+            { id: 5, day: 'wednesday', time: '3:30pm', votes: 7, max: 25 },
+            { id: 6, day: 'wednesday', time: '4:30pm', votes: 10, max: 25 },
+            { id: 7, day: 'thursday', time: '3:30pm', votes: 4, max: 25 },
+            { id: 8, day: 'thursday', time: '4:30pm', votes: 9, max: 25 }
+        ];
+
+        let selectedSlotId = null;
+        let userVote = localStorage.getItem(`vote_${userData.email}`);
+
+        // Render slots
+        function renderSlots() {
+            const grid = document.getElementById('slotsGrid');
+            grid.innerHTML = '';
+            
+            timeSlots.forEach(slot => {
+                const percentage = (slot.votes / slot.max) * 100;
+                const card = document.createElement('div');
+                card.className = `slot-card ${selectedSlotId === slot.id ? 'selected' : ''}`;
+                if (userVote) card.style.opacity = '0.7';
+                
+                card.innerHTML = `
+                    <div class="slot-time">${slot.time}</div>
+                    <div class="slot-day">${slot.day}</div>
+                    <div class="vote-count">
+                        <i class="fas fa-users"></i>
+                        <span>${slot.votes}/${slot.max} votes</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                `;
+                
+                if (!userVote) {
+                    card.addEventListener('click', () => selectSlot(slot.id));
+                }
+                
+                grid.appendChild(card);
+            });
+
+            // Update results list
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            
+            const sorted = [...timeSlots].sort((a,b) => b.votes - a.votes);
+            sorted.forEach(slot => {
+                const percentage = (slot.votes / Math.max(...timeSlots.map(s => s.votes))) * 100;
+                const div = document.createElement('div');
+                div.className = 'vote-item';
+                div.innerHTML = `
+                    <span class="time">${slot.day.slice(0,3)} ${slot.time}</span>
+                    <span class="count">${slot.votes}</span>
+                    <div class="vote-bar"><div class="vote-bar-fill" style="width: ${percentage}%"></div></div>
+                `;
+                resultsList.appendChild(div);
+            });
+
+            // Show selected section if vote not cast
+            if (!userVote) {
+                document.getElementById('selectedSlotSection').style.display = 'flex';
+            } else {
+                document.getElementById('selectedSlotSection').style.display = 'none';
+            }
+        }
+
+        function selectSlot(id) {
+            selectedSlotId = id;
+            const slot = timeSlots.find(s => s.id === id);
+            document.getElementById('selectedSlotDisplay').textContent = `${slot.day} ${slot.time}`;
+            renderSlots();
+        }
+
+        // Cast vote
+        document.getElementById('castVoteBtn').addEventListener('click', () => {
+            if (!selectedSlotId) {
+                alert('please select a time slot first');
+                return;
+            }
+
+            const slot = timeSlots.find(s => s.id === selectedSlotId);
+            slot.votes += 1;
+            userVote = selectedSlotId;
+            localStorage.setItem(`vote_${userData.email}`, selectedSlotId);
+            
+            renderSlots();
+            
+            // Show success message
+            const btn = document.getElementById('castVoteBtn');
+            btn.textContent = '✓ vote recorded';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.textContent = 'cast vote →';
+                btn.disabled = false;
+            }, 2000);
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('userData');
+            localStorage.removeItem('rememberedEmail');
+            sessionStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        });
+
+        // Initial render
+        renderSlots();
+
+        // Check if already voted
+        if (userVote) {
+            selectedSlotId = parseInt(userVote);
+            const slot = timeSlots.find(s => s.id === selectedSlotId);
+            if (slot) {
+                document.getElementById('selectedSlotDisplay').textContent = `${slot.day} ${slot.time}`;
+                document.getElementById('selectedSlotSection').style.display = 'flex';
+                document.getElementById('castVoteBtn').disabled = true;
+                document.getElementById('castVoteBtn').textContent = '✓ already voted';
+            }
+        }
+    </script>
+</body>
+</html>
